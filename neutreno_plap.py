@@ -51,7 +51,7 @@ class Attention(nn.Module):
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = torch.exp(attn) * p_lap
-        attn = attn / (torch.sum(attn, dim=-1, keepdim=True) + 1e-6)
+        attn = attn / (attn.sum(dim=-1, keepdim=True) + 1e-6)
     
         attn = self.attn_drop(attn)
 
