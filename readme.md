@@ -1,5 +1,8 @@
-To run the code, please insert run the line: sh run.sh to test your randomly initialized models.
-I am sorry for my low-tech code, when a pdb pop up on your screen, type x_cossim then write the value (to an excel file, for example). Then hit c (which means continue to the next layer). 
-By doing that 12 times, which is the number of layers, you will get all the cossim similarity you need for all layers.
+**Baseline softmax:**
 
-In case you want to load your trained model, please un-comment the line from 389 to 391 in the main.py.
+CUDA_VISIBLE_DEVICES='2,5,6,7’' python -m torch.distributed.launch --master_port 1607 --nproc_per_node=4 --use_env main_train.py --model deit_tiny_patch16_224 --batch-size 64 --data-path /cm/shared/tuannmd/imagenet/train --output_dir /home/tuannmd/checkpoint/imagenet_softmax
+
+
+**P-lap: 2 heads low p=1.5, 2 heads high p=2**
+
+CUDA_VISIBLE_DEVICES='0,1,2,6’' python -m torch.distributed.launch --master_port 1609 --nproc_per_node=4 --use_env main_train.py --model deit_tiny_plap_patch16_224 --batch-size 64 --data-path /cm/shared/tuannmd/imagenet/train --output_dir /home/tuannmd/checkpoint/imagenet_plap
