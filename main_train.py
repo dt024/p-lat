@@ -28,11 +28,13 @@ from engine import train_one_epoch, evaluate
 from losses import DistillationLoss
 from samplers import RASampler
 import models
+import wandb
 import utils
 
 def get_args_parser():
     parser = argparse.ArgumentParser('DeiT training and evaluation script', add_help=False)
     parser.add_argument('--batch-size', default=64, type=int)
+    parser.add_argument('--wandb', default=0, type=int)
     parser.add_argument('--epochs', default=300, type=int)
     parser.add_argument('--pi_reg', type= bool, default= False)
     parser.add_argument('--pi_reg_coef', type=float, default= 0.1)
@@ -394,6 +396,9 @@ def main(args):
     print(f"Start training for {args.epochs} epochs from {args.start_epoch}")
     start_time = time.time()
     max_accuracy = 0.0
+    if args.wandb==1:
+        if utils.is_main_process():
+            wandb.init(project='p-lat', entity='ductuan024', name=args.model)
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             data_loader_train.sampler.set_epoch(epoch)
@@ -438,7 +443,9 @@ def main(args):
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
-    
+    if args.wandb==1:
+        if utils.is_main_process():
+            wandb.finish()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('DeiT training and evaluation script', parents=[get_args_parser()])
