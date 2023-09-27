@@ -72,10 +72,14 @@ class Attention(nn.Module):
         # import pdb;pdb.set_trace()
         # ################
         
-        if self.layerth == 0:
-            return x, v
-        else:
-            return x
+        #FIDELITY
+        # if self.layerth == 0:
+        #     return x, v
+        # else:
+        #     return x
+
+        #NON FIDELITY
+        return x
 
 
 class Block(nn.Module):
@@ -105,10 +109,14 @@ class Block(nn.Module):
         x = x + self.drop_path(x_)
         
         x = x + self.drop_path(self.mlp(self.norm2(x)))
-        if self.layerth == 0:
-            return x, v0
-        else:
-            return x
+        #FIDELITY
+        # if self.layerth == 0:
+        #     return x, v0
+        # else:
+        #     return x
+
+        #NON FIDELITY
+        return x
  
  
 class VisionTransformer(nn.Module):
