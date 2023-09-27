@@ -54,9 +54,10 @@ class Attention(nn.Module):
         attn = attn / (attn.sum(dim=-1, keepdim=True) + 1e-6)
     
         attn = self.attn_drop(attn)
-
-        res = self.alpha*(v0 - v) if self.layerth > 0 else 0.
-        x = (attn @ v) + res
+        #With fidelity
+        # res = self.alpha*(v0 - v) if self.layerth > 0 else 0.
+        # x = (attn @ v) + res
+        x = (attn @ v)
         x = x.transpose(1, 2).reshape(B,N,C)
        
         x = self.proj(x)
@@ -93,12 +94,14 @@ class Block(nn.Module):
         self.layerth = layerth
  
     def forward(self, x, v0 = None):
+        #With fidelity
+        # if self.layerth == 0:
+        #     x_, v0 = self.attn(self.norm1(x))
+        # else:
+        #     x_ = self.attn(self.norm1(x), v0 = v0)
 
-        if self.layerth == 0:
-            x_, v0 = self.attn(self.norm1(x))
-        else:
-            x_ = self.attn(self.norm1(x), v0 = v0)
-
+        #Non fidelity
+        x_ = self.attn(self.norm1(x), v0 = v0)
         x = x + self.drop_path(x_)
         
         x = x + self.drop_path(self.mlp(self.norm2(x)))
@@ -233,9 +236,16 @@ class VisionTransformer(nn.Module):
         else:
             x = torch.cat((cls_token, self.dist_token.expand(x.shape[0], -1, -1), x), dim=1)
         x = self.pos_drop(x + self.pos_embed)
-        x, v0 = self.blocks[0](x)
+        #With fidelity
+        # x, v0 = self.blocks[0](x)
+        # for i in range(1, len(self.blocks)):
+        #     x = self.blocks[i](x, v0 = v0)
+
+        #non fidelity
+        x = self.blocks[0](x)
         for i in range(1, len(self.blocks)):
-            x = self.blocks[i](x, v0 = v0)
+            x = self.blocks[i](x)
+
         x = self.norm(x)
         if self.dist_token is None:
             return self.pre_logits(x[:, 0])
