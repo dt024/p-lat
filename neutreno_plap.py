@@ -105,7 +105,7 @@ class Block(nn.Module):
         #     x_ = self.attn(self.norm1(x), v0 = v0)
 
         #Non fidelity
-        x_ = self.attn(self.norm1(x), v0 = v0)
+        x_ = self.attn(self.norm1(x))
         x = x + self.drop_path(x_)
         
         x = x + self.drop_path(self.mlp(self.norm2(x)))
