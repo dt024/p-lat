@@ -66,7 +66,8 @@ def deit_tiny_patch16_224(pretrained=False, **kwargs):
 def deit_tiny_plap_patch16_224(pretrained=False, **kwargs):
     from neutreno_plap import VisionTransformer
     model = VisionTransformer(
-        patch_size=16, embed_dim=192, depth=12, num_heads_low=2, num_heads_high=2, p_low=1.5, p_high=2, 
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=2, num_heads_trans=0, num_heads_high=2, p_low=1.5, p_high=2, 
         mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
     model.default_cfg = _cfg()
@@ -76,7 +77,8 @@ def deit_tiny_plap_patch16_224(pretrained=False, **kwargs):
 def deit_tiny_plap2_patch16_224(pretrained=False, **kwargs):
     from neutreno_plap import VisionTransformer
     model = VisionTransformer(
-        patch_size=16, embed_dim=192, depth=12, num_heads_low=2, num_heads_high=2, p_low=1, p_high=2, 
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=2, num_heads_trans=0, num_heads_high=2, p_low=1, p_high=2, 
         mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
     model.default_cfg = _cfg()
@@ -86,7 +88,8 @@ def deit_tiny_plap2_patch16_224(pretrained=False, **kwargs):
 def deit_tiny_plap3_patch16_224(pretrained=False, **kwargs):
     from neutreno_plap import VisionTransformer
     model = VisionTransformer(
-        patch_size=16, embed_dim=192, depth=12, num_heads_low=2, num_heads_high=2, p_low=1, p_high=2.5, 
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=2, num_heads_trans=0, num_heads_high=2, p_low=1, p_high=2.5, 
         mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
     model.default_cfg = _cfg()
@@ -96,7 +99,52 @@ def deit_tiny_plap3_patch16_224(pretrained=False, **kwargs):
 def deit_tiny_plap4_patch16_224(pretrained=False, **kwargs):
     from neutreno_plap import VisionTransformer
     model = VisionTransformer(
-        patch_size=16, embed_dim=192, depth=12, num_heads_low=2, num_heads_high=2, p_low=1.5, p_high=2.5, 
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=2, num_heads_trans=0, num_heads_high=2, p_low=1.5, p_high=2.5, 
+        mlp_ratio=4, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
+    model.default_cfg = _cfg()
+    return model
+
+@register_model
+def deit_tiny_plap11_patch16_224(pretrained=False, **kwargs):
+    from neutreno_plap import VisionTransformer
+    model = VisionTransformer(
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=1, num_heads_trans=2, num_heads_high=1, p_low=1.5, p_high=2, 
+        mlp_ratio=4, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
+    model.default_cfg = _cfg()
+    return model
+
+@register_model
+def deit_tiny_plap12_patch16_224(pretrained=False, **kwargs):
+    from neutreno_plap import VisionTransformer
+    model = VisionTransformer(
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=1, num_heads_trans=2, num_heads_high=1, p_low=1, p_high=2, 
+        mlp_ratio=4, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
+    model.default_cfg = _cfg()
+    return model
+
+@register_model
+def deit_tiny_plap13_patch16_224(pretrained=False, **kwargs):
+    from neutreno_plap import VisionTransformer
+    model = VisionTransformer(
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=1, num_heads_trans=2, num_heads_high=1, p_low=1, p_high=2.5, 
+        mlp_ratio=4, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
+    model.default_cfg = _cfg()
+    return model
+
+@register_model
+def deit_tiny_plap14_patch16_224(pretrained=False, **kwargs):
+    from neutreno_plap import VisionTransformer
+    model = VisionTransformer(
+        patch_size=16, embed_dim=192, depth=12, 
+        num_heads_low=1, num_heads_trans=2, num_heads_high=1, p_low=1.5, p_high=2.5, 
         mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs) # Tan's NOTE: in the original code, num_heads = 3 here
     model.default_cfg = _cfg()

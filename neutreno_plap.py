@@ -17,9 +17,9 @@ import copy
 
  
 class Attention(nn.Module):
-    def __init__(self, dim, p_low=2, p_high=2, num_heads_low=2, num_heads_high=1, qkv_bias=False, attn_drop=0., proj_drop=0., layerth = None):
+    def __init__(self, dim, p_low=2, p_high=2, num_heads_low=2,num_heads_trans=1, num_heads_high=1, qkv_bias=False, attn_drop=0., proj_drop=0., layerth = None):
         super().__init__()
-        num_heads = num_heads_low+num_heads_high
+        num_heads = num_heads_low+num_heads_trans+num_heads_high
         assert dim % num_heads == 0, 'dim should be divisible by num_heads'
         self.num_heads = num_heads
         head_dim = dim // num_heads
@@ -27,6 +27,7 @@ class Attention(nn.Module):
         self.p_low = p_low
         self.p_high = p_high
         self.num_heads_low = num_heads_low
+        self.num_heads_trans = num_heads_trans
 
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop)
@@ -45,8 +46,9 @@ class Attention(nn.Module):
         identity_matrix = torch.eye(N).to(v.device)
         p_lap = torch.cdist(v,v,p=2) + identity_matrix       #add 1 to diagonal for self-attention
         p_low = p_lap[:,:self.num_heads_low,:,:]**(self.p_low-2)
-        p_high = p_lap[:,self.num_heads_low:,:,:]**(self.p_high-2)
-        p_lap = torch.cat([p_low, p_high],dim=1)
+        p_trans = p_lap[:,self.num_heads_low:self.num_heads_low+self.num_heads_trans,:,:]**0
+        p_high = p_lap[:,self.num_heads_low+self.num_heads_trans:,:,:]**(self.p_high-2)
+        p_lap = torch.cat([p_low, p_trans, p_high],dim=1)
         # print("DEBUGGGGGGGGGGGGG", p_lap.size())
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
@@ -84,11 +86,12 @@ class Attention(nn.Module):
 
 class Block(nn.Module):
  
-    def __init__(self, dim, p_low, p_high, num_heads_low, num_heads_high, mlp_ratio=4., qkv_bias=False, drop=0., attn_drop=0.,
+    def __init__(self, dim, p_low, p_high, num_heads_low, num_heads_trans, num_heads_high, mlp_ratio=4., qkv_bias=False, drop=0., attn_drop=0.,
                  drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm, layerth = None):
         super().__init__()
         self.norm1 = norm_layer(dim)
-        self.attn = Attention(dim, p_low=p_low, p_high=p_high, num_heads_low=num_heads_low, num_heads_high=num_heads_high, 
+        self.attn = Attention(dim, p_low=p_low, p_high=p_high, 
+                              num_heads_low=num_heads_low, num_heads_trans=num_heads_trans, num_heads_high=num_heads_high, 
                               qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop, layerth= layerth)
         # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
@@ -128,7 +131,7 @@ class VisionTransformer(nn.Module):
     """
  
     def __init__(self, img_size=224, patch_size=16, in_chans=3, num_classes=1000, embed_dim=768, depth=12,
-                 p_low=2, p_high=2, num_heads_low=2, num_heads_high=1, mlp_ratio=4., qkv_bias=True, representation_size=None, distilled=False,
+                 p_low=2, p_high=2, num_heads_low=2, num_heads_trans=1, num_heads_high=1, mlp_ratio=4., qkv_bias=True, representation_size=None, distilled=False,
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0., embed_layer=PatchEmbed, norm_layer=None,
                  act_layer=None, weight_init=''):
         """
@@ -171,7 +174,8 @@ class VisionTransformer(nn.Module):
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, depth)]  # stochastic depth decay rule
         self.blocks = nn.ModuleList([
             Block(
-                dim=embed_dim, p_low=p_low, p_high=p_high, num_heads_low=num_heads_low, num_heads_high=num_heads_high, 
+                dim=embed_dim, p_low=p_low, p_high=p_high, 
+                num_heads_low=num_heads_low, num_heads_trans=num_heads_trans, num_heads_high=num_heads_high, 
                 mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, drop=drop_rate,
                 attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, act_layer=act_layer, layerth = i)
             for i in range(depth)])
