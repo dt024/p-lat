@@ -52,8 +52,10 @@ class Attention(nn.Module):
         # print("DEBUGGGGGGGGGGGGG", p_lap.size())
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
-        attn = torch.exp(attn) * p_lap
-        attn = attn / (attn.sum(dim=-1, keepdim=True) + 1e-6)
+        att = attn.softmax(dim=-1) * p_lap
+        
+        # attn = torch.exp(attn) * p_lap
+        # attn = attn / (attn.sum(dim=-1, keepdim=True) + 1e-6)
     
         attn = self.attn_drop(attn)
         #With fidelity
